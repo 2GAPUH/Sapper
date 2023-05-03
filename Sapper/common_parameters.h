@@ -23,6 +23,7 @@ struct mainWindow
 struct mainGameField
 {
 	int type;
+	SDL_Rect hitbox;
 };
 
 struct mainRenderer
@@ -31,4 +32,9 @@ struct mainRenderer
 	SDL_Rect textureSize;
 	SDL_Rect frame;
 	int frameTime;
+};
+
+struct mainMouseClick
+{
+	int x, y;
 };
