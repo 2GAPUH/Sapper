@@ -75,13 +75,33 @@ int main(int argc, char* argv[])
 			case SDL_MOUSEBUTTONUP:
 				if (ev.button.button == SDL_BUTTON_LEFT)
 				{
+
 				}
 				break;
 			}
 
-
-
 		}
+
+		int blockScaleX = (WINDOW_WIDTH / 2 - BLOCK_WIDTH_COUNT / 2 * BLOCK_SIZE);
+		int blockScaleY = (WINDOW_HEIGHT / 2 - BLOCK_HEIGHT_COUNT / 2 * BLOCK_SIZE);
+
+		SDL_SetRenderDrawColor(ren, 180, 180, 180, 255);
+		for (int i = 0; i < BLOCK_HEIGHT_COUNT; i += 1)
+			for (int j = 0; j < BLOCK_WIDTH_COUNT; j += 1)
+			{
+				SDL_Rect rect = { j * BLOCK_SIZE + blockScaleX, i * BLOCK_SIZE + blockScaleY, BLOCK_SIZE, BLOCK_SIZE };
+				SDL_RenderFillRect(ren, &rect);
+			}
+
+		SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
+		for (int i = 0; i < BLOCK_HEIGHT_COUNT; i += 1)
+			for (int j = 0; j < BLOCK_WIDTH_COUNT; j += 1)
+			{
+				SDL_Rect rect = { j*BLOCK_SIZE + blockScaleX, i*BLOCK_SIZE + blockScaleY, BLOCK_SIZE, BLOCK_SIZE };
+				SDL_RenderDrawRect(ren, &rect);
+			}
+
+
 
 		SDL_RenderPresent(ren);
 		SDL_SetRenderDrawColor(ren, 255, 255, 255, 255);
