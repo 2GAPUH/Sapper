@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <math.h>
 #include <time.h>
+#include <SDL_image.h>
+#include <SDL_ttf.h>
 #include "func.h"
 #include "common_parameters.h"
 
@@ -18,8 +20,34 @@ int main(int argc, char* argv[])
 	bool isRunning = 1;
 	SDL_Event ev;
 	mainWindow window = {WINDOW_WIDTH, WINDOW_HEIGHT, 1, 1};
+	mainGameField** gameField = NULL;
+	mainRenderer tiles;
+
+	gameField = (mainGameField**)malloc(sizeof(*gameField) * BLOCK_HEIGHT_COUNT);
+	for (int i = 0; i < BLOCK_HEIGHT_COUNT; i++)
+		gameField[i] = (mainGameField*)malloc(sizeof(mainGameField) * BLOCK_WIDTH_COUNT);
 
 	Init(&win, &ren, &winSurface);
+
+#pragma region COBBLESTONE TEXTURE
+	SDL_Surface* surface = NULL;
+	if ((surface = IMG_Load("tiles.png")) == NULL)
+	{
+		printf_s("Can't load image 'tiles.png'");
+		system("pause");
+	}
+
+	tiles.texture = SDL_CreateTextureFromSurface(ren, surface);
+
+	tiles.textureSize.x = NULL;
+	tiles.textureSize.y = NULL;
+	tiles.textureSize.w = surface->w;
+	tiles.textureSize.h = surface->h;
+
+	tiles.frame.w = surface->w;
+	tiles.frame.h = surface->h;
+	SDL_FreeSurface(surface);
+#pragma endregion
 
 	while(isRunning)
 	{ 
@@ -90,16 +118,12 @@ int main(int argc, char* argv[])
 			for (int j = 0; j < BLOCK_WIDTH_COUNT; j += 1)
 			{
 				SDL_Rect rect = { j * BLOCK_SIZE + blockScaleX, i * BLOCK_SIZE + blockScaleY, BLOCK_SIZE, BLOCK_SIZE };
-				SDL_RenderFillRect(ren, &rect);
+				SDL_Rect currentTexture = { tiles.textureSize.h * BLOCK_TEXTURE_BOMB, 0, tiles.textureSize.h, tiles.textureSize.h };
+				//SDL_RenderFillRect(ren, &rect);
+				SDL_RenderCopy(ren, tiles.texture, &currentTexture, &rect);
 			}
 
-		SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
-		for (int i = 0; i < BLOCK_HEIGHT_COUNT; i += 1)
-			for (int j = 0; j < BLOCK_WIDTH_COUNT; j += 1)
-			{
-				SDL_Rect rect = { j*BLOCK_SIZE + blockScaleX, i*BLOCK_SIZE + blockScaleY, BLOCK_SIZE, BLOCK_SIZE };
-				SDL_RenderDrawRect(ren, &rect);
-			}
+
 
 
 
@@ -109,6 +133,10 @@ int main(int argc, char* argv[])
 
 		FPSControl();
 	}
+
+	for (int i = 0; i < BLOCK_HEIGHT_COUNT; i++)
+		free(gameField[i]);
+	free(gameField);
 
 	DeInit(0, &win, &ren, &winSurface);
 
