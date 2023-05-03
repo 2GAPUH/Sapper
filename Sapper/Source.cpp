@@ -4,56 +4,93 @@
 #include <stdio.h>
 #include <math.h>
 #include <time.h>
-#define WINDOW_HEIGHT 600
-#define WINDOW_WIDTH 800
+#include "func.h"
+#include "common_parameters.h"
+
 
 SDL_Window* win = NULL;
 SDL_Renderer* ren = NULL;
+SDL_Surface* winSurface = NULL;
 
-void DeInit(int error)
-{
-	if(ren != NULL)SDL_DestroyRenderer(ren);
-	if (win != NULL)SDL_DestroyWindow(win);
-	SDL_Quit();
-	exit(error);
-}
-
-void Init()
-{
-	if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
-	{
-		printf_s("Couldn't init SDL! Error: %s\n", SDL_GetError());
-		system("pause");
-		DeInit(1);
-	}
-
-	win = SDL_CreateWindow("SDL project", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
-
-	if (win == NULL)
-	{
-		printf_s("Couldn't create window! Error: %s\n", SDL_GetError());
-		system("pause");
-		DeInit(1);
-	}
-
-	ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED);
-
-	if (ren == NULL)
-	{
-		printf_s("Couldn't create renderer! Error: %s", SDL_GetError());
-		system("pause");
-		DeInit(1);
-	}
-
-}
 
 int main(int argc, char* argv[])
 {
-	Init();
+	bool isRunning = 1;
+	SDL_Event ev;
+	mainWindow window = {WINDOW_WIDTH, WINDOW_HEIGHT, 1, 1};
 
-	SDL_Delay(10000);
+	Init(&win, &ren, &winSurface);
 
-	DeInit(0);
+	while(isRunning)
+	{ 
+
+		while (SDL_PollEvent(&ev))
+		{
+			switch (ev.type)
+			{
+			case SDL_QUIT:
+				isRunning = false;
+				break;
+
+			case SDL_WINDOWEVENT:
+				switch (ev.window.event)
+				{
+				case SDL_WINDOWEVENT_RESIZED:
+					SDL_GetWindowSize(win, &window.w, &window.h);
+					SDL_RenderSetScale(ren, window.scaleX = window.w / 1. / WINDOW_WIDTH, window.scaleY = window.h / 1. / WINDOW_HEIGHT);
+					window.w /= window.scaleX;
+					window.h /= window.scaleY;
+				}
+				break;
+
+
+
+			case SDL_KEYDOWN:
+				switch (ev.key.keysym.scancode)
+				{
+				case SDL_SCANCODE_ESCAPE:
+					isRunning = false;
+					break;
+				}
+				break;
+
+
+
+			case SDL_KEYUP:
+				switch (ev.key.keysym.scancode)
+				{
+				case SDL_SCANCODE_D:
+					break;
+				}
+				break;
+
+			case SDL_MOUSEBUTTONDOWN:
+				if (ev.button.button == SDL_BUTTON_X2)
+				{
+				
+				}
+				break;
+
+
+			case SDL_MOUSEBUTTONUP:
+				if (ev.button.button == SDL_BUTTON_LEFT)
+				{
+				}
+				break;
+			}
+
+
+
+		}
+
+		SDL_RenderPresent(ren);
+		SDL_SetRenderDrawColor(ren, 255, 255, 255, 255);
+		SDL_RenderClear(ren);
+
+		FPSControl();
+	}
+
+	DeInit(0, &win, &ren, &winSurface);
 
 	return 0;
 }
